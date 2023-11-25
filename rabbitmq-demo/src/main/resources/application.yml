@@ -7,9 +7,9 @@ spring:
     host: 127.0.0.1
     port: 5672
     #用户名
-    username: admin
+    username: guest
     #密码
-    password: admin
+    password: guest
     #虚拟主机
     virtual-host: /
 

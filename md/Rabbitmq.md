@@ -98,7 +98,7 @@ private final static String QUEUE_NAME = "simple_queue";
 
 ### 其中rabbitmq中显示
 
-![image-20231124104501192](G:\项目\rabbitmq-demo\HELP.assets\image-20231124104501192.png)
+![](../img/rabbitmq.png)
 
 **如果消息十分重要，建议使用`手动ack`，但是代码中并没有进行消息确认！所以消息并未被真正消费掉。当我们关掉这个消费者，消息的状态再次称为Ready，具体是否手动取决实际场景!**
 
