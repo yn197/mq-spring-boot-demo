@@ -1,0 +1,15 @@
+server:
+  port: 8396
+spring:
+  #rabbitmq配置
+  rabbitmq:
+    #rabbitMq的服务器地址
+    host: 127.0.0.1
+    port: 5672
+    #用户名
+    username: admin
+    #密码
+    password: admin
+    #虚拟主机
+    virtual-host: /
+
