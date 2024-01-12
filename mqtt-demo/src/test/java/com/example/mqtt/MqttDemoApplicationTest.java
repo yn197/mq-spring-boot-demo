@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @Slf4j
-class MqttDemoApplicationTests {
+class MqttDemoApplicationTest {
     @Autowired
     private MqttSendClient mqttSendClient;
     @Test
