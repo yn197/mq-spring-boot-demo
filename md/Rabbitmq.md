@@ -524,7 +524,99 @@ private static final String EXCHANGE_NAME = "topic_logs";
 
 ![Producer -> Queue -> Consuming: RPC (Remote Procedure Call), the request/reply pattern.](https://www.rabbitmq.com/img/tutorials/python-six.png)
 
-## 1.7 消息确认（[Publisher Confirms](https://www.rabbitmq.com/tutorials/tutorial-seven-java.html)）
+## 1.7 延迟队列
+
+消息提供者:
+
+```java
+private static final String EXCHANGE_NAME = "delayedExchange";
+    private static final String QUEUE_NAME = "delayedQueue";
+    private static final String ROUTING_KEY = "delayedRoutingKey";
+
+
+    public static void main(String[] args) throws Exception {
+        try {
+            // 创建连接和通道
+            try (Connection connection = ConnectionUtil.getConnection();
+                 Channel channel = connection.createChannel()) {
+
+                // 声明交换机，类型为 x-delayed-message
+                Map<String, Object> exchangeArgs = new HashMap<>(4);
+                exchangeArgs.put("x-delayed-type", "direct");
+                channel.exchangeDeclare(EXCHANGE_NAME, "x-delayed-message", true, false, exchangeArgs);
+
+                // 声明队列
+                channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+
+                // 绑定队列到交换机
+                channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
+
+                // 发送延迟消息
+                String message = "Hello, RabbitMQ!";
+                //5 seconds
+                int delayMillis = 5000;
+                AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder()
+                        .headers(Collections.singletonMap("x-delay", delayMillis))
+                        .build();
+
+                channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY, properties, message.getBytes());
+                System.out.println(" [x] Sent '" + message + "' with a delay of " + delayMillis + " milliseconds");
+
+
+            }
+        } catch (IOException | TimeoutException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+```
+
+
+
+消息消费者：
+
+```java
+private static final String EXCHANGE_NAME = "delayedExchange";
+    private static final String QUEUE_NAME = "delayedQueue";
+    private static final String ROUTING_KEY = "delayedRoutingKey";
+
+    public static void main(String[] argv) throws Exception {
+        try {
+            // 创建连接和通道
+            try (Connection connection = ConnectionUtil.getConnection();
+                 Channel channel = connection.createChannel()) {
+
+                // 声明交换机，类型为 x-delayed-message
+                Map<String, Object> exchangeArgs = new HashMap<>();
+                exchangeArgs.put("x-delayed-type", "direct");
+                channel.exchangeDeclare(EXCHANGE_NAME, "x-delayed-message", true, false, exchangeArgs);
+
+                // 声明队列
+                channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+
+                // 绑定队列到交换机
+                channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
+
+                // 消费消息
+                System.out.println(" [*] Waiting for messages. To exit press Ctrl+C");
+                DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+                    String receivedMessage = new String(delivery.getBody(), "UTF-8");
+                    System.out.println(" [x] Received '" + receivedMessage + "'");
+                };
+                channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> {
+                });
+
+                // 等待消息消费,等待 6 秒，确保消息能够被消费
+                Thread.sleep(6000);
+            }
+        } catch (IOException | TimeoutException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+```
+
+
+
+## 1.8 消息确认（[Publisher Confirms](https://www.rabbitmq.com/tutorials/tutorial-seven-java.html)）
 
 
 
