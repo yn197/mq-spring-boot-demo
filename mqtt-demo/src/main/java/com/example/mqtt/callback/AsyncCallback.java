@@ -1,7 +1,13 @@
 package com.example.mqtt.callback;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
 /**
- * 定义回调接口
+ * 回调接口，使用函数式接口作为参数
  * @author nisang
  * 2024/1/12 20:17
  * @version 1.0
@@ -9,20 +15,32 @@ package com.example.mqtt.callback;
  */
 public interface AsyncCallback {
     /**
-     * 当异步任务成功完成时调用该方法
-     * @param result 成功完成的结果信息
+     * 异步任务完成时调用，通知回调对象
+     * @param result 完成的结果
      */
-    void onSuccess(String result);
+    void onComplete(String result);
 
     /**
-     * 当异步任务失败时调用该方法
-     * @param error 失败的错误信息
+     * 处理成功的结果
+     * @param successHandler 处理成功结果的函数
      */
-    void onFailure(String error);
+    void onSuccess(Function<String, String> successHandler);
 
     /**
-     * 当异步任务有多次回调时调用该方法
-     * @param count 回调次数
+     * 处理失败的情况
+     * @param failureHandler 处理失败的消费者
      */
-    void onMultipleCallbacks(int count);
+    void onFailure(Consumer<String> failureHandler);
+
+    /**
+     * 结果判断
+     * @param resultPredicate 判断结果的断言
+     */
+    void onResult(Predicate<String> resultPredicate);
+
+    /**
+     * 生成下一个任务
+     * @param nextTaskSupplier 生成下一个任务的供应商
+     */
+    void onNextTask(Supplier<CompletableFuture<String>> nextTaskSupplier);
 }
